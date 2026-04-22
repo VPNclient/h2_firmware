@@ -25,50 +25,24 @@ The architecture uses `h2_vpn` as a high-performance, stealthy frontend (Reverse
 ### Component Diagram
 
 ```
-┌───────────────────────────────────────────────────────────┐
-│                     h2-firmware (Device)                  │
-├───────────────────────────────────────────────────────────┤
-│                                                           │
-│   Incoming Client Connection (443/TCP)                    │
-│   (AnyConnect Client with GOST Support)                   │
-│               │                                           │
-│               ▼                                           │
-│   ┌──────────────────────────────┐                        │
-│   │        h2_vpn (Go)           │                        │
-│   │  (Frontend Stealth Proxy)    │                        │
-│   ├──────────────────────────────┤                        │
-│   │ - GOST TLS 1.3 Handshake     │                        │
-│   │ - HTTP/2 CONNECT handling    │                        │
-│   │ - TLS Decryption/Re-encryption│                       │
-│   └───────────────┬──────────────┘                        │
-│                   │                                       │
-│                   │ Local Proxy (UNIX Socket or 127.0.0.1)│
-│                   ▼                                       │
-│   ┌──────────────────────────────┐                        │
-│   │         ocserv (C)           │                        │
-│   │   (AnyConnect Backend)       │                        │
-│   ├──────────────────────────────┤                        │
-│   │ - CSTP/AnyConnect Logic      │                        │
-│   │ - Authentication (local)     │                        │
-│   │ - IP Pool Management (TUN)   │                        │
-│   │ - Kernel Routing             │                        │
-│   └──────────────────────────────┘                        │
-│                                                           │
-└───────────────────────────────────────────────────────────┘
+[... existing diagram ...]
 ```
 
 ### Data Flow
 
-1. **Handshake Phase**: 
-   - Client initiates TLS 1.3 connection.
-   - `h2_vpn` performs GOST handshake using `crypto/ru/gost` primitives.
-   - Negotiated cipher is `TLS_GOSTR341112_256_WITH_KUZNYECHIK_MGM_L`.
-2. **Tunnel Phase**:
-   - Client sends HTTP CONNECT request (AnyConnect style).
-   - `h2_vpn` strips HTTP/2 framing and forwards raw CSTP traffic to `ocserv`.
-   - `ocserv` performs AnyConnect session negotiation (XML config, auth).
-3. **Data Phase**:
-   - Encapsulated IP packets flow from Client -> `h2_vpn` (GOST) -> `ocserv` -> TUN device -> Internet.
+[... existing data flow ...]
+
+## Emulation Profile: Cisco ASA 5506-X / ISR 4331
+
+To maximize compatibility with existing clients in RU hospitals, the firmware must identify itself as a Cisco device.
+
+| Parameter | Value | Notes |
+|-----------|-------|-------|
+| **Device Model** | Cisco ASA 5506-X / ISR 4331 | Target hardware profiles |
+| **Banner** | "Authorized Access Only" | Configurable medical-standard banner |
+| **Protocol** | CSTP / AnyConnect | SSL VPN protocol |
+| **TLS Version** | TLS 1.3 (with GOST fallback) | Modern security standard |
+| **XML Profile** | `AnyConnect.xml` | Standard Cisco XML client configuration |
 
 ## Interfaces
 

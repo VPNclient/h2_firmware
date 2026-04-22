@@ -33,7 +33,8 @@ This project combines the established `ocserv` (C) codebase for protocol compati
 ### Must Have
 
 1. **AnyConnect Compatibility**: Full support for Cisco AnyConnect (CSTP/AnyConnect) protocol via `ocserv`.
-2. **GOST Crypto Support**: Integration of GOST R 34.10-2012, 34.11-2012, and 34.12-2015 for TLS handshakes and data encryption.
+2. **Target Profile**: Support for **Cisco ASA 5506-X** and **Cisco ISR 4331** emulation profiles (XML headers, banner, and protocol quirks), as these are the most widespread models in RU medical infrastructure.
+3. **GOST Crypto Support**: Integration of GOST R 34.10-2012, 34.11-2012, and 34.12-2015 for TLS handshakes and data encryption.
 3. **HTTP/2 Transport**: High-performance transport layer leveraging `h2_vpn`'s HTTP/2 implementation.
 4. **Unified Firmware**: A single build/packaging system that produces a runnable firmware image or bundle.
 5. **Cisco Client Compatibility**: Ability for standard OpenConnect or GOST-enabled Cisco clients to connect.

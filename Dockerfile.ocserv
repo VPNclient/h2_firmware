@@ -1,0 +1,39 @@
+FROM alpine:3.20 AS builder
+
+# Install build dependencies
+RUN apk add --no-cache \
+    bash \
+    build-base \
+    gnutls-dev \
+    libev-dev \
+    libnl3-dev \
+    libseccomp-dev \
+    linux-headers \
+    lz4-dev \
+    meson \
+    nettle-dev \
+    protobuf-c-dev \
+    readline-dev \
+    tar \
+    xz
+
+WORKDIR /build
+COPY vendor/ocserv /build/ocserv
+
+# Build ocserv
+RUN cd /build/ocserv && \
+    meson setup build \
+    -Dprefix=/usr \
+    -Dlocal-talloc=true \
+    -Dlocal-llhttp=true \
+    -Dpam=false \
+    -Dradius=false \
+    -Dgnutls=enabled \
+    -Dsystemd=disabled \
+    -Dseccomp=enabled \
+    -Dutmp=disabled && \
+    meson compile -C build
+
+# Final image stage can be added here if needed for full firmware bundle
+# For now, this is just to verify the build and get the binary
+CMD ["ls", "-l", "/build/ocserv/build/src/ocserv"]

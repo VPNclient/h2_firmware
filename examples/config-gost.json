@@ -1,0 +1,29 @@
+{
+  "inbounds": [
+    {
+      "port": 443,
+      "protocol": "https-vpn",
+      "ocservBackend": "172.20.0.2:8443",
+      "streamSettings": {
+        "network": "h2",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "vpn.hospital.ru",
+          "cipherSuites": "ru",
+          "certificates": [
+            {
+              "certificateFile": "certs/server-cert.pem",
+              "keyFile": "certs/server-key.pem"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    }
+  ]
+}

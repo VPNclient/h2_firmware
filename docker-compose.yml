@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  ocserv:
+    build:
+      context: .
+      dockerfile: Dockerfile.ocserv
+    container_name: ocserv-backend
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ./examples/ocserv-backend.conf:/etc/ocserv/ocserv.conf:ro
+      - ./certs:/etc/ocserv/certs:ro
+    # For prototype, we use host network or fixed IP to allow h2_vpn to reach it
+    networks:
+      vpn_net:
+        ipv4_address: 172.20.0.2
+
+  h2_vpn:
+    image: golang:1.24-alpine
+    container_name: h2-frontend
+    volumes:
+      - .:/app
+      - ./examples/config-gost.json:/app/config.json:ro
+      - ./certs:/app/certs:ro
+    working_dir: /app
+    command: /app/build/h2_vpn run -c /app/config.json
+    ports:
+      - "443:443"
+    depends_on:
+      - ocserv
+    networks:
+      vpn_net:
+        ipv4_address: 172.20.0.3
+
+networks:
+  vpn_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
